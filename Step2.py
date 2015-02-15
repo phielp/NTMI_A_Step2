@@ -1,6 +1,6 @@
 import re
 
-file_name = "/Users/philipbouman/Documents/AI/NTMI/Assignment01/test.txt"
+file_name = "/Users/philipbouman/Documents/AI/NTMI/AssignmentA/test.txt"
 
 f = open(file_name, "r")
 
