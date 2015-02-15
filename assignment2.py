@@ -14,25 +14,23 @@ def readword(f):
 	# expression used to split words
 	ngramtable = {}
 	ngramkey = ""
+	firstword = True
+	i = 0
 
 	# read all lines into words
 	with open(f, 'r') as f:
-		i = 0
-		'''if line[0] == "\n":
-				if paropen:
-					ngramkey = word + " " + "-!"
-					ngramtable = checkgram(ngramkey,ngramtable)
-					paropen = False
-				lastn = True
-			elif line[0] != "\n":
-				if lastn and not paropen:
-					ngramkey = "!-"
-					i += 1
-					paropen = True
-
-				lastn = False'''
 		for line in f:
-			for words in line.split():
+			firstword = True
+			j=0
+			splitlines = line.split()
+			for words in splitlines:
+				if firstword:
+					if i == 0:
+						ngramkey = "START"
+					elif i < n:
+						ngramkey = ngramkey + " " + "START"
+					i += 1
+					firstword = False
 				# if ngramkey smaller than n
 				if i < n:
 					if i == 0:
@@ -51,6 +49,13 @@ def readword(f):
 						ngramtable[ngramkey] = 1
 						i = 0
 						ngramkey = ""
+				if j == len(splitlines)-1:
+					if i == 0:
+						ngramkey = "END"
+					elif i < n:
+						ngramkey = ngramkey + " " + "END"
+					i += 1
+				j += 1
 
 	return ngramtable
 
@@ -98,28 +103,18 @@ m = 10#int(options.mth)
 # parse file and close
 ngramtable = readword(file_name)
 
-# depending on number n, ngrams need to be offset
-# should work with n-1 instead conditional offset
-# but it did not
-
-if n == 1:
-	offset = 0;
-elif n == 2:
-	offset = 1;
-else:
-	offset = 2;
-
-
-
-# j is used to make ngrams
-# i is used to iterate through words
-i = 0
 # part 1
 printhigh(ngramtable,m)
+#####
+#print ngramtable
 # check probability of ngram
-ngram = 'has been'
+ngram = 'Taylor been'
 nofngrams = printsum(ngramtable)
-pofngram = float(ngramtable[ngram]) / float(nofngrams)
-print pofngram
+if ngram in ngramtable:
+	pofngram = float(ngramtable[ngram]) / float(nofngrams)
+	print "This ngram has a probability of %f" % (pofngram)
+else:
+	print "This ngram has a probability of 0"
+
 
 # end
