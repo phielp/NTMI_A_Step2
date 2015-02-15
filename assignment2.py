@@ -106,7 +106,7 @@ def printhigh(ngramtable,m,n):
 #def printsum(ngramtable):
 #	print "The sum of all frequencies is %i times" % (sum(ngramtable.values()))
 #	return sum(ngramtable.values())
-def calcProbability(ngramtable, ngrams):
+def calcProbability(ngramtable, ngrams,comments):
 	nofngrams = sum(ngramtable.values())
 	pofngrams = {}
 	for line in ngrams:
@@ -115,11 +115,14 @@ def calcProbability(ngramtable, ngrams):
 		else:
 			if line in ngramtable:
 				pofngram = float(ngramtable[line]) / float(nofngrams)
-				print "The probability of the ngram '%s' occuring is %.20f" % (line,pofngram)
+				if comments:
+					print "The probability of the ngram '%s' occuring is %.20f" % (line,pofngram)
 				pofngrams[line] = pofngram
 			else:
-				print "The probability of the ngram '%s' occuring is %f" % (line,0.0)
+				if comments:
+					print "The probability of the ngram '%s' occuring is %f" % (line,0.0)
 				pofngrams[line] = 0.0
+	return pofngrams
 
 def readProbability(ngramtable, pfile):
 	ngrams = []
@@ -130,7 +133,7 @@ def readProbability(ngramtable, pfile):
 			line = line.replace('\n', '').split(' ')
 			line = ' '.join(line)
 			ngrams.append(line)
-	pofngrams = calcProbability(ngramtable,ngrams)
+	pofngrams = calcProbability(ngramtable,ngrams,True)
 	
 	return pofngrams
 
@@ -146,21 +149,28 @@ def checksentence(ngramtable, sfile,n):
 			ngramkey = ""
 			linesplit = line.replace('\n', '').split(' ')
 			for word in linesplit:
-				print word
 				if i == 0:
 					ngramkey = word
+					i += 1
 				elif i < n:
 					ngramkey = ngramkey + " " + word
 					i += 1
-				if i == n:
+				elif i == n:
 					ngrams.append(ngramkey)
+					ngramkey = ngramkey + " " + word
+					ngramkey = ngramkey.split(' ', 1)[1]
 
-				
-			temp = calcProbability(ngramtable,ngrams)
-			for item in temp.values():
-				probtemp = probtemp * item
+			ngrams.append(ngramkey)
 
-			if probtemp == 1:
+			temp = calcProbability(ngramtable,ngrams, True)
+
+			if temp:
+				for item in temp.values():
+					probtemp = probtemp * item
+
+				if probtemp == 1:
+					probtemp = 0
+			else:
 				probtemp = 0
 
 			pofsentence[line] = probtemp
