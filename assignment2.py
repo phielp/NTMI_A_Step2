@@ -7,6 +7,7 @@
 import re
 import itertools
 from optparse import OptionParser
+from decimal import Decimal
 
 
 def getunigrams(f,n):
@@ -119,7 +120,7 @@ def checkProbability(ngramtable, pfile):
 			else:
 				if line in ngramtable:
 					pofngram = float(ngramtable[line]) / float(nofngrams)
-					print "The probability of the ngram '%s' occuring is %f" % (line,pofngram)
+					print "The probability of the ngram '%s' occuring is %.20f" % (line,pofngram)
 					pofngrams[line] = pofngram
 				else:
 					print "The probability of the ngram '%s' occuring is %f" % (line,0.0)
@@ -182,6 +183,9 @@ printhigh(ngramtable2,m,orderofn-1)
 if options.pfilename:
 	# check probability of ngram
 	pofn = checkProbability(ngramtable,options.pfilename)
+
+### 3.
+
 
 
 # end
