@@ -4,8 +4,6 @@
 #	Assignment A: step 2 NTMI
 #	Date		: 06-02-2015
 #
-
-
 import re
 from optparse import OptionParser
 
@@ -73,35 +71,52 @@ def printhigh(ngramtable,m):
 		i += 1
 
 # print sum of all frequencies for a number n
-def printsum(ngramtable):
-	print "The sum of all frequencies is %i times" % (sum(ngramtable.values()))
-	return sum(ngramtable.values())
+#def printsum(ngramtable):
+#	print "The sum of all frequencies is %i times" % (sum(ngramtable.values()))
+#	return sum(ngramtable.values())
+
+def checkProbability(ngram,ngramtable):
+	nofngrams = sum(ngramtable.values())
+	if ngram in ngramtable:
+		pofngram = float(ngramtable[ngram]) / float(nofngrams)
+		print "This ngram has a probability of %f" % (pofngram)
+		return pofngram
+	else:
+		print "This ngram has a probability of 0"
+		return 0
 
 
 ##################
 #    main code   #
 ##################
 
+############### parse command line ################
 
-# read cmdline options
 parser = OptionParser()
 parser.add_option("-c", "--corpus", dest="file_in")
 parser.add_option("-n", dest="nth")
-# parser.add_option("-f", dest="nth")
-
-#parser.add_option("-m", dest="mth")
-
+parser.add_option("-p", "--conditionalprobfile", dest="pfilename")
+parser.add_option("-s", "--sequenceprobfile" , dest="sfilename")
 (options,args) = parser.parse_args()
 
 # parameters manual editing
 file_name = options.file_in
-n = int(options.nth)
-m = 10#int(options.mth)
+if options.nth:
+	n = int(options.nth)
+else:
+	n = 2
+if options.pfilename:
+	pfile = pfilename
+if options.sfilename:
+	sfile = sfilename
 
-##################################################
+m = 10
+
+###################################################
 
 # parse file and close
-ngramtable = readword(file_name)
+ngramtable = readword(file_name,n)
+n = n -1
 
 # part 1
 printhigh(ngramtable,m)
@@ -109,12 +124,7 @@ printhigh(ngramtable,m)
 #print ngramtable
 # check probability of ngram
 ngram = 'Taylor been'
-nofngrams = printsum(ngramtable)
-if ngram in ngramtable:
-	pofngram = float(ngramtable[ngram]) / float(nofngrams)
-	print "This ngram has a probability of %f" % (pofngram)
-else:
-	print "This ngram has a probability of 0"
+pofn = checkProbability(ngram,ngramtable)
 
 
 # end
