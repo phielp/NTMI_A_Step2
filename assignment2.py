@@ -5,10 +5,10 @@
 #	Date		: 06-02-2015
 #
 # Command-line:
-# (1): python a1_step2.py -c austen.txt -n 3
-# (2): python a1_step2.py -c austen.txt -p test.txt
-# (3): python a1_step2.py -c austen.txt -n 3 -s test.txt
-# (4): python a1_step2.py -c austen.txt -n 3 -sp
+# (1): python assignment2.py -c austen.txt -n 3
+# (2): python assignment2.py -c austen.txt -p test.txt
+# (3): python assignment2.py -c austen.txt -n 3 -s test.txt
+# (4): python assignment2.py -c austen.txt -n 3 -sp
 import re
 import itertools
 from optparse import OptionParser
