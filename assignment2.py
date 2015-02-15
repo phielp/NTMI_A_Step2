@@ -9,7 +9,7 @@ import itertools
 from optparse import OptionParser
 from decimal import Decimal
 
-
+# if n = 1
 def getunigrams(f,n):
 	ngramtable = {}
 	with open(f, 'r') as f:
@@ -21,6 +21,7 @@ def getunigrams(f,n):
 					ngramtable[words] = 1
 
 	return ngramtable
+
 # reads lines from file and splits into words
 def getmultigramsgrams(f,n):
 	# expression used to split words
@@ -81,6 +82,7 @@ def getmultigramsgrams(f,n):
 			linenumber += 1
 	return ngramtable
 
+# get ngrams
 def getngrams(f,n):
 	if n > 1:
 		ngramtable = getmultigramsgrams(f,n)
@@ -102,10 +104,7 @@ def printhigh(ngramtable,m,n):
 		print "\n"
 		i += 1
 
-# print sum of all frequencies for a number n
-#def printsum(ngramtable):
-#	print "The sum of all frequencies is %i times" % (sum(ngramtable.values()))
-#	return sum(ngramtable.values())
+# calculate probability of ngram
 def calcProbability(ngramtable, ngrams,comments):
 	nofngrams = sum(ngramtable.values())
 	pofngrams = {}
@@ -124,6 +123,7 @@ def calcProbability(ngramtable, ngrams,comments):
 				pofngrams[line] = 0.0
 	return pofngrams
 
+# calculate probability of ngrams in a file
 def readProbability(ngramtable, pfile):
 	ngrams = []
 
@@ -137,18 +137,23 @@ def readProbability(ngramtable, pfile):
 	
 	return pofngrams
 
+# calculate probability of sentence
 def checksentence(ngramtable, sfile,n):
 	ngrams = []
 	pofsentence = {}
 
 	with open(sfile,'r') as f:
 		lines = f.readlines()
+		# for every sentence (line)
 		for line in lines:
 			i = 0
 			probtemp = 1
 			ngramkey = ""
+
+			# clean up and split into words
 			linesplit = line.replace('\n', '').split(' ')
 			for word in linesplit:
+				# create all ngrams
 				if i == 0:
 					ngramkey = word
 					i += 1
@@ -162,8 +167,10 @@ def checksentence(ngramtable, sfile,n):
 
 			ngrams.append(ngramkey)
 
+			# calculate probability of ngrams
 			temp = calcProbability(ngramtable,ngrams, True)
 
+			# if not empty calculate chance by product of prob
 			if temp:
 				for item in temp.values():
 					probtemp = probtemp * item
@@ -241,6 +248,7 @@ if options.sfilename:
 	pofs = checksentence(ngramtable,options.sfilename,orderofn)
 	print pofs
 
+### 4.
 
 
 
