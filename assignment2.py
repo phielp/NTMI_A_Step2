@@ -5,6 +5,7 @@
 #	Date		: 06-02-2015
 #
 import re
+import itertools
 from optparse import OptionParser
 
 
@@ -115,6 +116,22 @@ def checkProbability(ngram,ngramtable):
 		print "The probability of the ngram '%s' occuring is %f" % (ngram,0.0)
 		return 0.0
 
+# create all permutations of a given set
+def permutations(set):
+	a = ["know", "I", "opinion" "do", "be", "your", "not", "may", "what"]
+	b = ["I", "do", "not", "know"]
+
+	set = b 	# set set to b (testing)
+	length = len(set)
+	perms = []
+
+	while length > 0:
+
+		perm = list(itertools.permutations(set, length))
+		perms.append(perm)
+		length -= 1
+
+	return perms
 
 ##################
 #    main code   #
