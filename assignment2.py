@@ -7,58 +7,88 @@
 import re
 from optparse import OptionParser
 
+
+def getunigrams(f,n):
+	ngramtable = {}
+	with open(f, 'r') as f:
+		for line in f:
+			for words in line.split():
+				if words in ngramtable:
+					ngramtable[words] += 1
+				else:
+					ngramtable[words] = 1
+
+	return ngramtable
 # reads lines from file and splits into words
-def readword(f):
+def getmultigramsgrams(f,n):
 	# expression used to split words
 	ngramtable = {}
 	ngramkey = ""
-	firstword = True
 	i = 0
+	linenumber = 1
 
 	# read all lines into words
 	with open(f, 'r') as f:
 		for line in f:
-			firstword = True
 			j=0
 			splitlines = line.split()
 			for words in splitlines:
-				if firstword:
+				# Add start if first line
+				if j == 0:
 					if i == 0:
 						ngramkey = "START"
-					elif i < n:
-						ngramkey = ngramkey + " " + "START"
-					i += 1
-					firstword = False
-				# if ngramkey smaller than n
+						i += 1
+					else:
+						ngramkey = ngramkey + " START"
+						#print ngramkey
+						if ngramkey in ngramtable:
+							ngramtable[ngramkey] += 1
+						else:
+							ngramtable[ngramkey] = 1
+						ngramkey = ngramkey.split(' ', 1)[1] 
+
+
+				# if ngram has less than n words
 				if i < n:
 					if i == 0:
 						ngramkey = words
 					else:
 						ngramkey = ngramkey + " " + words
 					i += 1
-				else:
+					#print "\n ngramkey = %s \n linenumber = %i \n j = %i" % (ngramkey,linenumber,j)
+				if i == n:
 					# increment occurences of ngram
 					if ngramkey in ngramtable:
 						ngramtable[ngramkey] += 1
-						i = 0
-						ngramkey = ""
+						i = n-1
+						ngramkey = ngramkey.split(' ', 1)[1]
 					# if new ngram add to table
 					else:
 						ngramtable[ngramkey] = 1
-						i = 0
-						ngramkey = ""
+						i = n-1
+						ngramkey = ngramkey.split(' ', 1)[1]
 				if j == len(splitlines)-1:
-					if i == 0:
-						ngramkey = "END"
-					elif i < n:
-						ngramkey = ngramkey + " " + "END"
-					i += 1
+					ngramkey = ngramkey + " " + "END" 
+					#print ngramkey
+					if ngramkey in ngramtable:
+						ngramtable[ngramkey] += 1
+					else:
+						ngramtable[ngramkey] = 1
+					ngramkey = ngramkey.split(' ', 1)[1]
 				j += 1
+			linenumber += 1
+	return ngramtable
 
+def getngrams(f,n):
+	if n > 1:
+		ngramtable = getmultigramsgrams(f,n)
+	else:
+		ngramtable = getunigrams(f,n)
 	return ngramtable
 
 # print highest frequency ngrams and their counts
-def printhigh(ngramtable,m):
+def printhigh(ngramtable,m,n):
+	print "\n      Most frequent ngrams with n = %i\n" % (n)
 	# sort ngrams
 	top =  sorted(ngramtable.iteritems(), key=lambda (k,v):(v,k), reverse=True)
 	
@@ -79,11 +109,11 @@ def checkProbability(ngram,ngramtable):
 	nofngrams = sum(ngramtable.values())
 	if ngram in ngramtable:
 		pofngram = float(ngramtable[ngram]) / float(nofngrams)
-		print "This ngram has a probability of %f" % (pofngram)
+		print "The probability of the ngram '%s' occuring is %f" % (ngram,pofngram)
 		return pofngram
 	else:
-		print "This ngram has a probability of 0"
-		return 0
+		print "The probability of the ngram '%s' occuring is %f" % (ngram,0.0)
+		return 0.0
 
 
 ##################
@@ -102,26 +132,26 @@ parser.add_option("-s", "--sequenceprobfile" , dest="sfilename")
 # parameters manual editing
 file_name = options.file_in
 if options.nth:
-	n = int(options.nth)
+	orderofn = int(options.nth)
 else:
-	n = 2
+	orderofn = 2
 if options.pfilename:
 	pfile = pfilename
 if options.sfilename:
 	sfile = sfilename
 
+# the number of results returned for most frequent ngrams
 m = 10
 
 ###################################################
 
 # parse file and close
-ngramtable = readword(file_name,n)
-n = n -1
+ngramtable = getngrams(file_name,orderofn)
+ngramtable2 = getngrams(file_name,orderofn-1)
 
-# part 1
-printhigh(ngramtable,m)
-#####
-#print ngramtable
+printhigh(ngramtable,m,orderofn)
+printhigh(ngramtable2,m,orderofn-1)
+
 # check probability of ngram
 ngram = 'Taylor been'
 pofn = checkProbability(ngram,ngramtable)
