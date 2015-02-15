@@ -106,15 +106,25 @@ def printhigh(ngramtable,m,n):
 #	print "The sum of all frequencies is %i times" % (sum(ngramtable.values()))
 #	return sum(ngramtable.values())
 
-def checkProbability(ngram,ngramtable):
+def checkProbability(ngramtable, pfile):
 	nofngrams = sum(ngramtable.values())
-	if ngram in ngramtable:
-		pofngram = float(ngramtable[ngram]) / float(nofngrams)
-		print "The probability of the ngram '%s' occuring is %f" % (ngram,pofngram)
-		return pofngram
-	else:
-		print "The probability of the ngram '%s' occuring is %f" % (ngram,0.0)
-		return 0.0
+	pofngrams = {}
+	with open(pfile,'r') as f:
+		lines = f.readlines()
+		for line in lines:
+			line = line.replace('\n', '').split(' ')
+			line = ' '.join(line)
+			if len(line.split()) != orderofn:
+				print "The ngram '%s' is not the right length" % (line)
+			else:
+				if line in ngramtable:
+					pofngram = float(ngramtable[line]) / float(nofngrams)
+					print "The probability of the ngram '%s' occuring is %f" % (line,pofngram)
+					pofngrams[line] = pofngram
+				else:
+					print "The probability of the ngram '%s' occuring is %f" % (line,0.0)
+					pofngrams[line] = 0.0
+	return pofngrams
 
 # create all permutations of a given set
 def permutations(set):
@@ -152,8 +162,6 @@ if options.nth:
 	orderofn = int(options.nth)
 else:
 	orderofn = 2
-if options.pfilename:
-	pfile = pfilename
 if options.sfilename:
 	sfile = sfilename
 
@@ -162,6 +170,7 @@ m = 10
 
 ###################################################
 
+### 1. 
 # parse file and close
 ngramtable = getngrams(file_name,orderofn)
 ngramtable2 = getngrams(file_name,orderofn-1)
@@ -169,9 +178,10 @@ ngramtable2 = getngrams(file_name,orderofn-1)
 printhigh(ngramtable,m,orderofn)
 printhigh(ngramtable2,m,orderofn-1)
 
-# check probability of ngram
-ngram = 'Taylor been'
-pofn = checkProbability(ngram,ngramtable)
+### 2.
+if options.pfilename:
+	# check probability of ngram
+	pofn = checkProbability(ngramtable,options.pfilename)
 
 
 # end
