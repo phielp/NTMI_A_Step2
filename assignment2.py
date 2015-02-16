@@ -219,6 +219,10 @@ parser.add_option("-n", dest="nth")
 parser.add_option("-p", "--conditionalprobfile", dest="pfilename")
 parser.add_option("-s", "--sequenceprobfile" , dest="sfilename")
 parser.add_option("-f", "--scoredpermutations" , dest="score")
+<<<<<<< HEAD
+=======
+
+>>>>>>> FETCH_HEAD
 (options,args) = parser.parse_args()
 
 # parameters manual editing
