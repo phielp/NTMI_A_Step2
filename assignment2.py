@@ -8,7 +8,7 @@
 # (1): python assignment2.py -c austen.txt -n 3
 # (2): python assignment2.py -c austen.txt -p test.txt
 # (3): python assignment2.py -c austen.txt -n 3 -s test.txt
-# (4): python assignment2.py -c austen.txt -n 3 -sp
+# (4): python assignment2.py -c austen.txt -n 2 -f
 import re
 import itertools
 from optparse import OptionParser
@@ -223,12 +223,8 @@ parser.add_option("-c", "--corpus", dest="file_in")
 parser.add_option("-n", dest="nth")
 parser.add_option("-p", "--conditionalprobfile", dest="pfilename")
 parser.add_option("-s", "--sequenceprobfile" , dest="sfilename")
-<<<<<<< HEAD
 parser.add_option("-f", "--scoredpermutations" , dest="score")
 
-=======
-parser.add_option("-sp", "--scoredpermutations", dest="")
->>>>>>> FETCH_HEAD
 (options,args) = parser.parse_args()
 
 # parameters manual editing
