@@ -105,11 +105,11 @@ def printhigh(ngramtable,m,n):
 		i += 1
 
 # calculate probability of ngram
-def calcProbability(ngramtable, ngrams,comments):
+def calcProbability(ngramtable, ngrams,comments,n):
 	nofngrams = sum(ngramtable.values())
 	pofngrams = {}
 	for line in ngrams:
-		if len(line.split()) != orderofn:
+		if len(line.split()) != n:
 			print "The ngram '%s' is not the right length" % (line)
 		else:
 			if line in ngramtable:
@@ -124,7 +124,7 @@ def calcProbability(ngramtable, ngrams,comments):
 	return pofngrams
 
 # calculate probability of ngrams in a file
-def readProbability(ngramtable, pfile):
+def readProbability(ngramtable, pfile,orderofn):
 	ngrams = []
 
 	with open(pfile,'r') as f:
@@ -133,54 +133,56 @@ def readProbability(ngramtable, pfile):
 			line = line.replace('\n', '').split(' ')
 			line = ' '.join(line)
 			ngrams.append(line)
-	pofngrams = calcProbability(ngramtable,ngrams,True)
+	pofngrams = calcProbability(ngramtable,ngrams,True,orderofn)
 	
 	return pofngrams
 
 # calculate probability of sentence
-def checksentence(ngramtable, sfile,n):
+def checksentence(ngramtable, sfile,n,usefile):
 	ngrams = []
 	pofsentence = {}
-
-	with open(sfile,'r') as f:
+	if usefile:
+		f = open(sfile,'r')
 		lines = f.readlines()
-		# for every sentence (line)
-		for line in lines:
-			i = 0
-			probtemp = 1
-			ngramkey = ""
+	else:
+		lines = sfile
+	# for every sentence (line)
+	for line in lines:
+		i = 0
+		probtemp = 1
+		ngramkey = ""
 
-			# clean up and split into words
-			linesplit = line.replace('\n', '').split(' ')
-			for word in linesplit:
-				# create all ngrams
-				if i == 0:
-					ngramkey = word
-					i += 1
-				elif i < n:
-					ngramkey = ngramkey + " " + word
-					i += 1
-				elif i == n:
-					ngrams.append(ngramkey)
-					ngramkey = ngramkey + " " + word
-					ngramkey = ngramkey.split(' ', 1)[1]
+		# clean up and split into words
+		linesplit = line.replace('\n', '').split(' ')
+		for word in linesplit:
+			# create all ngrams
+			if i == 0:
+				ngramkey = word
+				i += 1
+			elif i < n:
+				ngramkey = ngramkey + " " + word
+				i += 1
+			elif i == n:
+				ngrams.append(ngramkey)
+				ngramkey = ngramkey + " " + word
+				ngramkey = ngramkey.split(' ', 1)[1]
 
-			ngrams.append(ngramkey)
+		ngrams.append(ngramkey)
 
-			# calculate probability of ngrams
-			temp = calcProbability(ngramtable,ngrams, True)
+		# calculate probability of ngrams
+		temp = calcProbability(ngramtable,ngrams, False,n)
 
-			# if not empty calculate chance by product of prob
-			if temp:
-				for item in temp.values():
-					probtemp = probtemp * item
+		# if not empty calculate chance by product of prob
+		if temp:
+			for item in temp.values():
+				probtemp = probtemp * item
 
-				if probtemp == 1:
-					probtemp = 0
-			else:
+			if probtemp == 1:
 				probtemp = 0
+		else:
+			probtemp = 0
 
-			pofsentence[line] = probtemp
+		pofsentence[line] = probtemp
 
 	return pofsentence
 
@@ -189,10 +191,10 @@ def checksentence(ngramtable, sfile,n):
 
 # create all permutations of a given set
 def permutations(set):
-	a = ["know", "I", "opinion" "do", "be", "your", "not", "may", "what"]
+	a = ["know", "I", "opinion", "do", "be", "your", "not", "may", "what"]
 	b = ["I", "do", "not", "know"]
 
-	set = b 	# set set to b (testing)
+	set = a 	# set set to b (testing)
 	length = len(set)
 	perms = []
 
@@ -216,6 +218,8 @@ parser.add_option("-c", "--corpus", dest="file_in")
 parser.add_option("-n", dest="nth")
 parser.add_option("-p", "--conditionalprobfile", dest="pfilename")
 parser.add_option("-s", "--sequenceprobfile" , dest="sfilename")
+parser.add_option("-f", "--scoredpermutations" , dest="score")
+
 (options,args) = parser.parse_args()
 
 # parameters manual editing
@@ -231,24 +235,61 @@ m = 10
 ###################################################
 
 ### 1. 
-# parse file and close
 ngramtable = getngrams(file_name,orderofn)
-#ngramtable2 = getngrams(file_name,orderofn-1)
-
-#printhigh(ngramtable,m,orderofn)
-#printhigh(ngramtable2,m,orderofn-1)
+ngramtable2 = getngrams(file_name,orderofn-1)
+'''
+printhigh(ngramtable,m,orderofn)
+printhigh(ngramtable2,m,orderofn-1)'''
 
 ### 2.
 if options.pfilename:
 	# check probability of ngram
-	pofn = readProbability(ngramtable,options.pfilename)
+	pofn = readProbability(ngramtable,options.pfilename,orderofn)
 
 ### 3.
 if options.sfilename:
-	pofs = checksentence(ngramtable,options.sfilename,orderofn)
+	pofs = checksentence(ngramtable,options.sfilename,orderofn,True)
 	print pofs
 
 ### 4.
+if options.score:
+	perms = permutations(["I", "do", "not", "know"])
+	table = getngrams(file_name,orderofn)
+	sentences = []
+	for item in perms[0]:
+		sentences.append(' '.join(item))
+
+	probs = checksentence(table,sentences,2,False)
+	highest = max(probs, key=probs.get)
+	print "Most probable permutation:"
+	print "  Key: "
+	print highest
+	print "  Value: "
+	print probs[highest]
+
+
+
+
+
+
+	'''highest = {}
+	for sets in perms:
+		tempset = []
+		for perm in sets:
+			tempset.append(' '.join(perm))
+			size = len(perm)
+		print "Progress: calculating ngrams of size %i" % (size)
+		ngramtable = getngrams(file_name,size)
+		pofset = calcProbability(ngramtable,tempset,False,size)
+		high = max(pofset, key=pofset.get)
+		highest[high] = pofset[high]
+	highestvalue = max(highest, key=highest.get)
+	print "Key: %s \nProbability: %f" % (highestvalue,highest[highestvalue])
+	print "The highest values for all ngram lengths:"
+	print highest'''
+
+
+
 
 
 
