@@ -6,13 +6,11 @@
 #
 # Command-line:
 # (1): python assignment2.py -c austen.txt -n 3
-# (2): python assignment2.py -c austen.txt -p test.txt
+# (2): python assignment2.py -c austen.txt -p test2.txt
 # (3): python assignment2.py -c austen.txt -n 3 -s test.txt
-# (4): python assignment2.py -c austen.txt -n 3 -sp
-import re
+# (4): python assignment2.py -c austen.txt -n 3 -fo
 import itertools
 from optparse import OptionParser
-from decimal import Decimal
 
 # if n = 1
 def getunigrams(f,n):
@@ -28,7 +26,7 @@ def getunigrams(f,n):
 	return ngramtable
 
 # reads lines from file and splits into words
-def getmultigramsgrams(f,n):
+def getmultigrams(f,n):
 	# expression used to split words
 	ngramtable = {}
 	ngramkey = ""
@@ -90,7 +88,7 @@ def getmultigramsgrams(f,n):
 # get ngrams
 def getngrams(f,n):
 	if n > 1:
-		ngramtable = getmultigramsgrams(f,n)
+		ngramtable = getmultigrams(f,n)
 	else:
 		ngramtable = getunigrams(f,n)
 	return ngramtable
@@ -146,6 +144,7 @@ def readProbability(ngramtable, pfile,orderofn):
 def checksentence(ngramtable, sfile,n,usefile):
 	ngrams = []
 	pofsentence = {}
+	# read from file or not
 	if usefile:
 		f = open(sfile,'r')
 		lines = f.readlines()
@@ -196,10 +195,6 @@ def checksentence(ngramtable, sfile,n,usefile):
 
 # create all permutations of a given set
 def permutations(set):
-	a = ["know", "I", "opinion", "do", "be", "your", "not", "may", "what"]
-	b = ["I", "do", "not", "know"]
-
-	set = a 	# set set to b (testing)
 	length = len(set)
 	perms = []
 
@@ -223,12 +218,7 @@ parser.add_option("-c", "--corpus", dest="file_in")
 parser.add_option("-n", dest="nth")
 parser.add_option("-p", "--conditionalprobfile", dest="pfilename")
 parser.add_option("-s", "--sequenceprobfile" , dest="sfilename")
-<<<<<<< HEAD
 parser.add_option("-f", "--scoredpermutations" , dest="score")
-
-=======
-parser.add_option("-sp", "--scoredpermutations", dest="")
->>>>>>> FETCH_HEAD
 (options,args) = parser.parse_args()
 
 # parameters manual editing
@@ -246,9 +236,10 @@ m = 10
 ### 1. 
 ngramtable = getngrams(file_name,orderofn)
 ngramtable2 = getngrams(file_name,orderofn-1)
-'''
-printhigh(ngramtable,m,orderofn)
-printhigh(ngramtable2,m,orderofn-1)'''
+
+if options.nth:
+	printhigh(ngramtable,m,orderofn)
+	printhigh(ngramtable2,m,orderofn-1)
 
 ### 2.
 if options.pfilename:
@@ -257,45 +248,30 @@ if options.pfilename:
 
 ### 3.
 if options.sfilename:
+	# check probability of a sentence
 	pofs = checksentence(ngramtable,options.sfilename,orderofn,True)
 	print pofs
 
 ### 4.
 if options.score:
 	perms = permutations(["I", "do", "not", "know"])
-	table = getngrams(file_name,orderofn)
+
+	table = getngrams(file_name,2)
 	sentences = []
+	
+	# make strings out of all permutations
 	for item in perms[0]:
 		sentences.append(' '.join(item))
 
+	# check sentences and most probable permutations
 	probs = checksentence(table,sentences,2,False)
 	highest = max(probs, key=probs.get)
+	printhigh(probs,2,2)
 	print "Most probable permutation:"
 	print "  Key: "
 	print highest
 	print "  Value: "
 	print probs[highest]
-
-
-
-
-
-
-	'''highest = {}
-	for sets in perms:
-		tempset = []
-		for perm in sets:
-			tempset.append(' '.join(perm))
-			size = len(perm)
-		print "Progress: calculating ngrams of size %i" % (size)
-		ngramtable = getngrams(file_name,size)
-		pofset = calcProbability(ngramtable,tempset,False,size)
-		high = max(pofset, key=pofset.get)
-		highest[high] = pofset[high]
-	highestvalue = max(highest, key=highest.get)
-	print "Key: %s \nProbability: %f" % (highestvalue,highest[highestvalue])
-	print "The highest values for all ngram lengths:"
-	print highest'''
 
 
 
