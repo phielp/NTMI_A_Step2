@@ -104,26 +104,32 @@ def getngrams(f,n):
 
 
 def getR(ngramtable,ngram):
+
+	listofocc = ngramtable.values()
 	nr = ngramtable[ngram]
 	nr1 = ngramtable[ngram]+1
-	counternr = 0
-	counternr1 = 0
-	for value in ngramtable:
-		if value == nr:
-			counternr += 1
-		if value == nr1:
-			counternr1 += 1
-	
+	if nr in numberofrs:
+		counternr = numberofrs[ngramtable[ngram]]
+	else:
+		counternr = listofocc.count(nr)
+	if nr1 in numberofrs:
+		counternr1 = numberofrs[ngramtable[ngram]]
+	else:
+		counternr1 = listofocc.count(nr1)
 	return [counternr,counternr1]
+
+
+
 
 # good turing
 def calcProbabilityGT(ngramtable,pofn):
 	nofngrams = sum(ngramtable.values())
-	counternr = 0
-	counternr1 = 0
+	counter = 0
 	for ngram in ngramtable:
 		temp = getR(ngramtable,ngram)
-		pofn[ngram] *= float(temp[0])/float(temp[1])
+		pofn[ngram] *= float(temp[1])/float(temp[0])
+		counter += 1
+		print "%i,%i" % (counter,nofngrams)
 
 	return pofn
 
@@ -227,6 +233,7 @@ else:
 ### 1. 
 ngramtable = getngrams(file_name,orderofn)
 #ngramtable2 = getngrams(file_name,orderofn-1)
+numberofrs = {}
 
 ### 2.
 if options.smoothmethod == "no":
@@ -238,7 +245,7 @@ if options.smoothmethod == "add1":
 if options.smoothmethod == "gt":
 	pofn = calcProbabilityAdd1(ngramtable,False,2)
 	pofn = calcProbabilityGT(ngramtable,pofn)
-	print pofn
+	#print pofn
 
 
 
