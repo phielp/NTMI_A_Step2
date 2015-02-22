@@ -102,32 +102,31 @@ def getngrams(f,n):
 		ngramtable = getunigrams(f,n)
 	return ngramtable
 
-# calculate probability of ngram
-# add 1 smoothing
-def calcProbability(ngramtable, ngrams,comments,n):
-	nofngrams = sum(ngramtable.values())
-	pofngrams = {}
-	for line in ngrams:
-		if len(line.split()) != n:
-			print "The ngram '%s' is not the right length" % (line)
-		else:
-			if line in ngramtable:
-				pofngram = (float(ngramtable[line]+1) / float(nofngrams))
-				if comments:
-					print "The probability of the ngram '%s' occuring is %.20f" % (line,pofngram)
-				pofngrams[line] = pofngram
-			else:
-				if comments:
-					print "The probability of the ngram '%s' occuring is %f" % (line,0.0)
-				pofngrams[line] = 0.0
-	return pofngrams
 
+def getR(ngramtable,ngram):
+	nr = ngramtable[ngram]
+	nr1 = ngramtable[ngram]+1
+	counternr = 0
+	counternr1 = 0
+	for value in ngramtable:
+		if value == nr:
+			counternr += 1
+		if value == nr1:
+			counternr1 += 1
+	
+	return [counternr,counternr1]
 
 # good turing
-def calcProbabilityGT(ngramtable, ngrams,comments,n):
-	pngram = {}
-	for ngram in ngrams:
-		pngram = (1/len(ngramtable)) * (rngram + 1) * ()
+def calcProbabilityGT(ngramtable,pofn):
+	nofngrams = sum(ngramtable.values())
+	counternr = 0
+	counternr1 = 0
+	for ngram in ngramtable:
+		temp = getR(ngramtable,ngram)
+		pofn[ngram] *= float(temp[0])/float(temp[1])
+
+	return pofn
+
 	
 # add 1 smoothing
 def calcProbabilityAdd1(ngramtable,comments,n):
@@ -237,7 +236,9 @@ if options.smoothmethod == "no":
 if options.smoothmethod == "add1":
 	pofn = calcProbabilityAdd1(ngramtable,True,2)
 if options.smoothmethod == "gt":
-	pofn = calcProbabilityGT(ngramtable,True,2)
+	pofn = calcProbabilityAdd1(ngramtable,False,2)
+	pofn = calcProbabilityGT(ngramtable,pofn)
+	print pofn
 
 
 
