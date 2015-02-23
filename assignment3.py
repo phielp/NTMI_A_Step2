@@ -103,18 +103,13 @@ def getngrams(f,n):
 	return ngramtable
 
 
-def getR(ngramtable,ngram):
-	nr = ngramtable[ngram]
-	nr1 = ngramtable[ngram]+1
-	if nr in numberofrs:
-		counternr = numberofrs[ngramtable[ngram]]
-	else:
-		counternr = listofocc.count(nr)
-	if nr1 in numberofrs:
-		counternr1 = numberofrs[ngramtable[ngram]]
-	else:
-		counternr1 = listofocc.count(nr1)
-	return [counternr,counternr1]
+def getR(ngramtable):
+	k = 5
+	i = 1
+	while i <= k + 1:
+		numberofrs[i] = listofocc.count(i)
+		i += 1
+
 
 # print highest frequency ngrams and their counts
 def printhigh(ngramtable):
@@ -131,11 +126,10 @@ def calcProbabilityGT(ngramtable,pofn):
 	counter = -1
 	sortngrams = printhigh(ngramtable)
 	while sortngrams[counter][1] < k + 1:
-		temp = getR(ngramtable,sortngrams[0][0])
-		pofn[sortngrams[0][0]] *= float(temp[1])/float(temp[0])
+		temp0 = numberofrs[ sortngrams[counter][1] ]
+		temp1 = numberofrs[ sortngrams[counter][1]+1 ]
+		pofn[sortngrams[0][0]] *= float(temp1)/float(temp0)
 		counter -= 1
-		print "%i,%i" % (counter,nofngrams)
-	
 	return pofn
 
 
@@ -174,43 +168,6 @@ def calcProbability(ngramtable,comments,n):
 			pofngrams[ngram] = 0.0
 	return pofngrams
 
-
-
-# calculate probability of ngrams in a file
-def readProbability(ngramtable, pfile,orderofn,smoothmethod):
-	ngrams = []
-
-	with open(pfile,'r') as f:
-		lines = f.readlines()
-		for line in lines:
-			line = line.replace('\n', '').split(' ')
-			line = ' '.join(line)
-			ngrams.append(line)
-	pofngrams = calcProbability(ngramtable,ngrams,True,orderofn)
-
-
-	'''if smoothmethod == "no":
-		pofngrams = calcProbability(ngramtable,ngrams,True,orderofn)
-	elif smoothmethod == "add1":
-		pofngrams = calcProbabilityAdd1(ngramtable,ngrams,True,orderofn)
-	else:
-		pofngrams = calcProbabilityGT(ngramtable,ngrams,True,orderofn)
-		'''
-	return pofngrams
-
-
-# create all permutations of a given set
-def permutations(set):
-	length = len(set)
-	perms = []
-
-	while length > 0:
-
-		perm = list(itertools.permutations(set, length))
-		perms.append(perm)
-		length -= 1
-
-	return perms
 
 
 ##################
@@ -252,8 +209,8 @@ if options.smoothmethod == "add1":
 	pofn = calcProbabilityAdd1(ngramtable,True,2)
 if options.smoothmethod == "gt":
 	pofn = calcProbabilityAdd1(ngramtable,False,2)
+	getR(ngramtable)
 	pofn = calcProbabilityGT(ngramtable,pofn)
-	print pofn
 	#print pofn
 
 
