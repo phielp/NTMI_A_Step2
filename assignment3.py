@@ -104,7 +104,6 @@ def getngrams(f,n):
 
 
 def getR(ngramtable):
-	k = 5
 	i = 1
 	while i <= k + 1:
 		numberofrs[i] = listofocc.count(i)
@@ -121,7 +120,6 @@ def printhigh(ngramtable):
 
 # good turing
 def calcProbabilityGT(ngramtable,pofn):
-	k = 5
 	nofngrams = sum(ngramtable.values())
 	counter = -1
 	sortngrams = printhigh(ngramtable)
@@ -131,8 +129,6 @@ def calcProbabilityGT(ngramtable,pofn):
 		pofn[sortngrams[0][0]] *= float(temp1)/float(temp0)
 		counter -= 1
 	return pofn
-
-
 
 	
 # add 1 smoothing
@@ -151,14 +147,13 @@ def calcProbabilityAdd1(ngramtable,comments,n):
 			pofngrams[ngram] = 0.0
 	return pofngrams
 
-
-# no smoothing
+# calculate probability of ngram
 def calcProbability(ngramtable,comments,n):
 	nofngrams = sum(ngramtable.values())
 	pofngrams = {}
 	for ngram in ngramtable:
 		if ngram in ngramtable:
-			pofngram = (float(ngramtable[ngram]) / float(nofngrams))
+			pofngram = (float(ngramtable[ngram])+1) / float(nofngrams)
 			if comments:
 				print "The probability of the ngram '%s' occuring is %.20f" % (ngram,pofngram)
 			pofngrams[ngram] = pofngram
@@ -167,6 +162,84 @@ def calcProbability(ngramtable,comments,n):
 				print "The probability of the ngram '%s' occuring is %f" % (ngram,0.0)
 			pofngrams[ngram] = 0.0
 	return pofngrams
+
+# calculate probability of sentence
+def checksentence(ngramtable, sfile,n,usefile,smoothmethod):
+	ngrams = []
+	pofsentence = {}
+	pofn = {}
+	zerocounter = 0
+
+	# get probabilities for ngrams
+	if smoothmethod == "no":
+		pofn = calcProbability(ngramtable, False,n)
+	elif smoothmethod == "add1":
+		pofn = calcProbabilityAdd1(ngramtable, False,n)
+	elif smoothmethod == "gt":
+		pofn = calcProbability(ngramtable, False,n)
+	else:
+		print "Invalid method"
+		return None
+
+
+	# read from file or not
+	if usefile:
+		f = open(sfile,'r')
+		lines = f.readlines()
+	else:
+		lines = sfile
+
+	countertime = 0
+	lenlines = len(lines)
+
+
+	# for every sentence (line)
+	for line in lines:
+		countertime += 1
+		print "%i/%i" % (countertime,lenlines)
+		# clean up and split into words
+		linesplit = line.split()
+
+		# if empty continue
+		if not linesplit:
+			continue
+
+		# init variables
+		i = 0
+		ngramkey = ""
+		probtemp = 1
+
+		# create ngrams
+		for word in linesplit:
+			if i == 0:
+				ngramkey = word
+				i += 1
+			elif i < n:
+				ngramkey = ngramkey + " " + word
+				i += 1
+			elif i == n:
+				ngrams.append(ngramkey)
+				ngramkey = ngramkey + " " + word
+				ngramkey = ngramkey.split(' ', 1)[1]
+
+		ngrams.append(ngramkey)
+
+		# calculate probability of ngrams
+		for ngram in ngrams:
+			if ngram in pofn:
+				probtemp *= pofn[ngram]
+			else:
+				probtemp = 0
+				zerocounter += 1
+				continue
+		
+
+		pofsentence[line] = probtemp
+
+	print "There were %i sentences with zero percent chance." % (zerocounter)
+	return pofsentence
+
+
 
 
 
@@ -199,19 +272,13 @@ ngramtable = getngrams(file_name,orderofn)
 #ngramtable2 = getngrams(file_name,orderofn-1)
 numberofrs = {}
 listofocc = ngramtable.values()
+k = 5
 
 ### 2.
-if options.smoothmethod == "no":
+if options.smoothmethod:
 	# check probability of ngram
 	#pofn = readProbability(ngramtable,file_name,orderofn,options.smoothmethod)
-	pofn = calcProbability(ngramtable,True, 2)
-if options.smoothmethod == "add1":
-	pofn = calcProbabilityAdd1(ngramtable,True,2)
-if options.smoothmethod == "gt":
-	pofn = calcProbabilityAdd1(ngramtable,False,2)
-	getR(ngramtable)
-	pofn = calcProbabilityGT(ngramtable,pofn)
-	#print pofn
+	pofn = checksentence(ngramtable,testcorpus,2,True,options.smoothmethod)
 
 
 
