@@ -122,7 +122,10 @@ def printhigh(ngramtable):
 def calcProbabilityGT(ngramtable,pofn):
 	nofngrams = sum(ngramtable.values())
 	counter = -1
+	# sort ngrams from high to low
 	sortngrams = printhigh(ngramtable)
+
+	# iterate backwards over sorted list and get p of ngrams < 5
 	while sortngrams[counter][1] < k + 1:
 		temp0 = numberofrs[ sortngrams[counter][1] ]
 		temp1 = numberofrs[ sortngrams[counter][1]+1 ]
@@ -194,8 +197,6 @@ def checksentence(ngramtable, sfile,n,usefile,smoothmethod):
 	countertime = 0
 	lenlines = len(lines)
 
-	print "poep"
-
 	# for every sentence (line)
 	for line in lines:
 		countertime += 1
@@ -240,8 +241,9 @@ def checksentence(ngramtable, sfile,n,usefile,smoothmethod):
 					probtemp =  1.0 /float(sum(ngramtable.values()))
 				if smoothmethod == "gt":
 					probtemp *= float(numberofrs[1])/1.0
-			if probtemp == 0:
-				zerocounter += 1
+		
+		if probtemp == 0:
+			zerocounter += 1
 
 		
 
@@ -278,17 +280,15 @@ else:
 
 ###################################################
 
-### 1. 
+### init variables 
 ngramtable = getngrams(file_name,orderofn)
-#ngramtable2 = getngrams(file_name,orderofn-1)
 numberofrs = {}
 listofocc = ngramtable.values()
 k = 5
 
 ### 2.
 if options.smoothmethod:
-	# check probability of ngram
-	#pofn = readProbability(ngramtable,file_name,orderofn,options.smoothmethod)
+	# check probability of sentence
 	pofn = checksentence(ngramtable,testcorpus,2,True,options.smoothmethod)
 
 
