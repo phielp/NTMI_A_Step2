@@ -178,10 +178,13 @@ def checksentence(ngramtable, sfile,n,usefile,smoothmethod):
 		pofn = calcProbability(ngramtable, False,n)
 	elif smoothmethod == "add1":
 		pofn = calcProbabilityAdd1(ngramtable, False,n)
+		probtemppre =  1.0 /float(sum(ngramtable.values()))
 	elif smoothmethod == "gt":
 		pofn = calcProbabilityAdd1(ngramtable, False,n)
 		getR(ngramtable)
 		pofn = calcProbability(ngramtable, False,n)
+		probtemppre =  1.0 /float(sum(ngramtable.values()))
+		probtemppre *= float(numberofrs[1])/1.0
 	else:
 		print "Invalid method"
 		return None
@@ -238,9 +241,7 @@ def checksentence(ngramtable, sfile,n,usefile,smoothmethod):
 					zerocounter += 1
 					continue
 				elif smoothmethod == "add1" or smoothmethod == "gt":
-					probtemp =  1.0 /float(sum(ngramtable.values()))
-				if smoothmethod == "gt":
-					probtemp *= float(numberofrs[1])/1.0
+					probtemp = probtemppre
 		
 		if probtemp == 0:
 			zerocounter += 1
