@@ -104,8 +104,6 @@ def getngrams(f,n):
 
 
 def getR(ngramtable,ngram):
-
-	listofocc = ngramtable.values()
 	nr = ngramtable[ngram]
 	nr1 = ngramtable[ngram]+1
 	if nr in numberofrs:
@@ -118,20 +116,29 @@ def getR(ngramtable,ngram):
 		counternr1 = listofocc.count(nr1)
 	return [counternr,counternr1]
 
+# print highest frequency ngrams and their counts
+def printhigh(ngramtable):
+	# sort ngrams
+	top =  sorted(ngramtable.iteritems(), key=lambda (k,v):(v,k), reverse=True)
 
-
+	# get the bot m results from the sorted ngrams
+	return top
 
 # good turing
 def calcProbabilityGT(ngramtable,pofn):
+	k = 5
 	nofngrams = sum(ngramtable.values())
-	counter = 0
-	for ngram in ngramtable:
-		temp = getR(ngramtable,ngram)
-		pofn[ngram] *= float(temp[1])/float(temp[0])
-		counter += 1
+	counter = -1
+	sortngrams = printhigh(ngramtable)
+	while sortngrams[counter][1] < k + 1:
+		temp = getR(ngramtable,sortngrams[0][0])
+		pofn[sortngrams[0][0]] *= float(temp[1])/float(temp[0])
+		counter -= 1
 		print "%i,%i" % (counter,nofngrams)
-
+	
 	return pofn
+
+
 
 	
 # add 1 smoothing
@@ -234,6 +241,7 @@ else:
 ngramtable = getngrams(file_name,orderofn)
 #ngramtable2 = getngrams(file_name,orderofn-1)
 numberofrs = {}
+listofocc = ngramtable.values()
 
 ### 2.
 if options.smoothmethod == "no":
@@ -245,6 +253,7 @@ if options.smoothmethod == "add1":
 if options.smoothmethod == "gt":
 	pofn = calcProbabilityAdd1(ngramtable,False,2)
 	pofn = calcProbabilityGT(ngramtable,pofn)
+	print pofn
 	#print pofn
 
 
