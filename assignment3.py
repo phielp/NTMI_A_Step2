@@ -176,6 +176,8 @@ def checksentence(ngramtable, sfile,n,usefile,smoothmethod):
 	elif smoothmethod == "add1":
 		pofn = calcProbabilityAdd1(ngramtable, False,n)
 	elif smoothmethod == "gt":
+		pofn = calcProbabilityAdd1(ngramtable, False,n)
+		getR(ngramtable)
 		pofn = calcProbability(ngramtable, False,n)
 	else:
 		print "Invalid method"
@@ -192,6 +194,7 @@ def checksentence(ngramtable, sfile,n,usefile,smoothmethod):
 	countertime = 0
 	lenlines = len(lines)
 
+	print "poep"
 
 	# for every sentence (line)
 	for line in lines:
@@ -229,9 +232,17 @@ def checksentence(ngramtable, sfile,n,usefile,smoothmethod):
 			if ngram in pofn:
 				probtemp *= pofn[ngram]
 			else:
-				probtemp = 0
+				if smoothmethod == "no":
+					probtemp = 0
+					zerocounter += 1
+					continue
+				elif smoothmethod == "add1" or smoothmethod == "gt":
+					probtemp =  1.0 /float(sum(ngramtable.values()))
+				if smoothmethod == "gt":
+					probtemp *= float(numberofrs[1])/1.0
+			if probtemp == 0:
 				zerocounter += 1
-				continue
+
 		
 
 		pofsentence[line] = probtemp
